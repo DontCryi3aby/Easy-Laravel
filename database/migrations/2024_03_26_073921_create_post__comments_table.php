@@ -20,6 +20,11 @@ return new class extends Migration
             $table->timestamp('publishedAt')->nullable();
             $table->text('content')->nullable();
         });
+
+        Schema::table('post_comments', function (Blueprint $table) 
+        {
+            $table->foreignId('parentId')->constrained('post_comments')->nullable();
+        });
     }
 
     /**

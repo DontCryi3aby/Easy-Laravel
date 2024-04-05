@@ -24,11 +24,6 @@ return new class extends Migration
             $table->timestamp('publishedAt')->nullable();
             $table->text('content')->nullable();
         });
-
-        Schema::table('posts', function (Blueprint $table) 
-        {
-            $table->foreignId('parentId')->constrained('posts')->nullable();
-        });
     }
 
     /**
