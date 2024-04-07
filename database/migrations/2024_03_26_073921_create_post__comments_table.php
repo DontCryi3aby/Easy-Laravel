@@ -23,7 +23,7 @@ return new class extends Migration
 
         Schema::table('post_comments', function (Blueprint $table) 
         {
-            $table->foreignId('parentId')->constrained('post_comments')->nullable();
+            $table->foreignId('parentId')->nullable()->constrained('post_comments');
         });
     }
 

@@ -13,7 +13,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        return Category::paginate();
     }
 
     /**
@@ -29,15 +29,16 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        //
+        return Category::create($request->all());
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        //
+        $category = Category::findOrFail($id);
+        return $category;
     }
 
     /**
@@ -51,16 +52,19 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCategoryRequest $request, Category $category)
+    public function update(UpdateCategoryRequest $request, $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $category->update($request->all());
+        return $category;
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+        return $category->delete();
     }
 }
