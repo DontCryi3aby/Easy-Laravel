@@ -11,7 +11,7 @@ class StoreTagRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class StoreTagRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "title"=> ["required", "string", "max:75"],
+            "metaTitle"=> ["sometimes", "string", "max:100", "nullable"],
+            "slug"=> ["sometimes", "string", "max:100", "nullable"],
+            "content"=> ["sometimes", "string", "nullable"],
         ];
     }
 }

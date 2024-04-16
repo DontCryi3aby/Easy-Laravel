@@ -10,6 +10,7 @@ class Tag extends Model
 {
     use HasFactory;
     public $timestamps = false;
+    protected $guarded = [];
 
     public function post_tags(): HasMany
     {

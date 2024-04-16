@@ -11,7 +11,7 @@ class UpdateTagRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,21 @@ class UpdateTagRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        $method = $this->method();
+        if($method == "PUT") {
+            return [
+                "title"=> ["required", "string", "max:75"],
+                "metaTitle"=> ["sometimes", "string", "max:100", "nullable"],
+                "slug"=> ["sometimes", "string", "max:100", "nullable"],
+                "content"=> ["sometimes", "string", "nullable"],
+            ];
+        } else {
+            return [
+                "title"=> ["sometimes", "string", "max:75"],
+                "metaTitle"=> ["sometimes", "string", "max:100", "nullable"],
+                "slug"=> ["sometimes", "string", "max:100", "nullable"],
+                "content"=> ["sometimes", "string", "nullable"],
+            ];
+        }
     }
 }

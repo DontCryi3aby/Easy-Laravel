@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryCollection;
 use App\Models\Category;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Http\Resources\CategoryResource;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -13,23 +16,22 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return Category::paginate();
+        return new CategoryCollection(Category::paginate());
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(StoreCategoryRequest $request)
     {
-        return Category::create($request->all());
+        $title = $request->title;
+        if(!$request->slug) {
+            $slug = Str::replace(' ', "-", Str::lower($title));
+            $request->request->add(['slug' => $slug]);
+        }
+
+        if(!$request->metaTitle) {
+            $request->request->add(['metaTitle' => $title]);
+        }
+
+        return new CategoryResource(Category::create($request->all()));
     }
 
     /**
@@ -38,25 +40,29 @@ class CategoryController extends Controller
     public function show($id)
     {
         $category = Category::findOrFail($id);
-        return $category;
+        return new CategoryResource($category);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateCategoryRequest $request, $id)
     {
         $category = Category::findOrFail($id);
+        
+        if($request->isMethod('put')){
+            $title = $request->title;
+            if(!$request->slug) {
+                $slug = Str::replace(' ', "-", Str::lower($title));
+                $request->request->add(['slug' => $slug]);
+            }
+    
+            if(!$request->metaTitle) {
+                $request->request->add(['metaTitle' => $title]);
+            }
+        }
+        
         $category->update($request->all());
-        return $category;
+        return new CategoryResource($category);
     }
 
     /**
@@ -65,6 +71,10 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Category::findOrFail($id);
-        return $category->delete();
+        $category->delete();
+        return response()->json([
+            'status'=> 200,
+            'message' => "Category deleted successfully!"
+        ]);
     }
 }

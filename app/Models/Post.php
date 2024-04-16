@@ -13,6 +13,8 @@ class Post extends Model
 
     public $timestamps = false;
 
+    protected $guarded = ['createdAt', 'updatedAt', 'publishedAt'];
+
 
     public function user(): BelongsTo
     {

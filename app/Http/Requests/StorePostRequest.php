@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePostRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,13 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'authorId' => ['required', "exists:users,id"],
+            'title' => ['required', "string" , "max:75"],
+            'metaTitle' => ['sometimes', "string" , "max:100", "nullable"],
+            'slug' => ['sometimes', "string" , "max:100", "nullable"],
+            'sumary' => ['sometimes', "string" , "max:255", "nullable"],
+            'published' => ['required', Rule::in([0, 1])],
+            'content' => ['sometimes', 'string', 'nullable'],
         ];
     }
 }

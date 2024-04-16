@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\PostResource;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -13,15 +16,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return new PostCollection(Post::paginate());
     }
 
     /**
@@ -29,38 +24,61 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        //
+        $title = $request->title;
+        if(!$request->slug) {
+            $slug = Str::replace(' ', "-", Str::lower($title));
+            $request->request->add(['slug' => $slug]);
+        }
+
+        if(!$request->metaTitle) {
+            $request->request->add(['metaTitle' => $title]);
+        }
+
+        return new PostResource(Post::create($request->all()));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Post $post)
-    {
-        //
+        $post = Post::findOrFail($id);
+        return new PostResource($post);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostRequest $request, Post $post)
+    public function update(UpdatePostRequest $request, $id)
     {
-        //
+        $post = Post::findOrFail($id);
+        
+        if($request->isMethod('put')){
+            $title = $request->title;
+            if(!$request->slug) {
+                $slug = Str::replace(' ', "-", Str::lower($title));
+                $request->request->add(['slug' => $slug]);
+            }
+    
+            if(!$request->metaTitle) {
+                $request->request->add(['metaTitle' => $title]);
+            }
+        }
+
+        $post->update($request->all());
+        return new PostResource($post);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy($id)
     {
-        //
+        $post = Post::findOrFail($id);
+        $post->delete();
+        return response()->json([
+            'status'=> 200,
+            'message' => "Post deleted successfully!"
+        ]);
     }
 }

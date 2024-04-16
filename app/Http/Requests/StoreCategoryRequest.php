@@ -22,7 +22,11 @@ class StoreCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "parentId"=> ["sometimes", "exists:categories,id", "nullable"],
+            "title"=> ["required", "string", "max:75"],
+            "metaTitle"=> ["sometimes", "string", "max:100", "nullable"],
+            "slug"=> ["sometimes", "string", "max:100", "nullable"],
+            "content"=> ["sometimes", "string", "nullable"],
         ];
     }
 }

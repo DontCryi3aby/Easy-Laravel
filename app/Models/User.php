@@ -21,11 +21,7 @@ class User extends Authenticatable
 
      public $timestamps = false;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+     protected $guarded = ['registeredAt', 'lastLogin'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -33,7 +29,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
+        'passwordHash',
         'remember_token',
     ];
 

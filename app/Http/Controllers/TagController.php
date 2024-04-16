@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TagCollection;
+use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
+use Illuminate\Support\Str;
 
 class TagController extends Controller
 {
@@ -13,15 +16,7 @@ class TagController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return new TagCollection(Tag::paginate());
     }
 
     /**
@@ -29,38 +24,61 @@ class TagController extends Controller
      */
     public function store(StoreTagRequest $request)
     {
-        //
+        $title = $request->title;
+        if(!$request->slug) {
+            $slug = Str::replace(' ', "-", Str::lower($title));
+            $request->request->add(['slug' => $slug]);
+        }
+
+        if(!$request->metaTitle) {
+            $request->request->add(['metaTitle' => $title]);
+        }
+        
+        return new TagResource(Tag::create($request->all()));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Tag $tag)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Tag $tag)
-    {
-        //
+        $tag = Tag::findOrFail($id);
+        return new TagResource($tag);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTagRequest $request, Tag $tag)
+    public function update(UpdateTagRequest $request, $id)
     {
-        //
+        $tag = Tag::findOrFail($id);
+
+        if($request->isMethod('put')){
+            $title = $request->title;
+            if(!$request->slug) {
+                $slug = Str::replace(' ', "-", Str::lower($title));
+                $request->request->add(['slug' => $slug]);
+            }
+    
+            if(!$request->metaTitle) {
+                $request->request->add(['metaTitle' => $title]);
+            }
+        }
+
+        $tag->update($request->all());
+        return new TagResource($tag);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tag $tag)
+    public function destroy($id)
     {
-        //
+        $tag = Tag::findOrFail($id);
+        $tag->delete();
+        return response()->json([
+            'status'=> 200,
+            'message' => "Tag deleted successfully!"
+        ]);
     }
 }
