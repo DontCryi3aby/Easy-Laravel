@@ -2,20 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\UsersFilter;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserCollection;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new UserCollection(User::paginate());
+        $filter = new UsersFilter();
+        
+        [$sort, $queryItems] = $filter->transform($request);
+        
+        // Filter
+        $users = User::where($queryItems);
+
+        // Sort
+        if($sort['field']) {
+            $users = $users->orderBy($sort['field'], $sort['type']);
+        }
+
+        // if($request->query("_embed") == "posts") {
+        //     $users = $users->with('posts');
+        // }
+        
+        return new UserCollection($users->paginate()->withQueryString());
     }
 
     /**

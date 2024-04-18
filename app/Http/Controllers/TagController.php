@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\TagsFilter;
 use App\Http\Resources\TagCollection;
 use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class TagController extends Controller
@@ -14,9 +16,21 @@ class TagController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new TagCollection(Tag::paginate());
+        $filter = new TagsFilter();
+        
+        [$sort, $queryItems] = $filter->transform($request);
+        
+        // Filter
+        $tags = Tag::where($queryItems);
+
+        // Sort
+        if($sort['field']) {
+            $tags = $tags->orderBy($sort['field'], $sort['type']);
+        }
+
+        return new TagCollection($tags->paginate()->withQueryString());
     }
 
     /**
