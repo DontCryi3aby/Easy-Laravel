@@ -29,9 +29,9 @@ class UserController extends Controller
             $users = $users->orderBy($sort['field'], $sort['type']);
         }
 
-        // if($request->query("_embed") == "posts") {
-        //     $users = $users->with('posts');
-        // }
+        if($request->query("_embed") == "posts") {
+            $users = $users->with('posts');
+        }
         
         return new UserCollection($users->paginate()->withQueryString());
     }

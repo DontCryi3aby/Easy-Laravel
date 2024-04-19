@@ -8,6 +8,10 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostResource;
+use App\Models\Category;
+use App\Models\Post_Category;
+use App\Models\Post_Tag;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -56,7 +60,66 @@ class PostController extends Controller
             $request->request->add(['metaTitle' => $title]);
         }
 
-        return new PostResource(Post::create($request->all()));
+        $newPost = Post::create($request->except(['tags', 'categories']));
+
+        // Handle create tag
+        if($tagsRequest = $request->tags){
+            foreach ($tagsRequest as $tagRequest) {
+                $tagsExist = Tag::pluck('title')->toArray();
+                if(in_array($tagRequest, $tagsExist)){
+                    $tagExistID = Tag::where('title', $tagRequest)->first()->id;
+                    Post_Tag::create([
+                        'postId' => $newPost->id,
+                        'tagId' => $tagExistID,
+                    ]);
+                } else {
+                    $slugTag = Str::replace(' ', "-", Str::lower($tagRequest));
+
+                    $newTag = Tag::create([
+                        'title'=> $tagRequest,
+                        'metaTitle'=> $tagRequest,
+                        'slug'=> $slugTag,
+                        'content' => null
+                    ]);
+
+                    Post_Tag::create([
+                        'postId' => $newPost->id,
+                        'tagId' => $newTag->id,
+                    ]);
+                }
+            }
+        }
+
+        // Handle create category
+        if($categoriesRequest = $request->categories){
+            foreach ($categoriesRequest as $categoryRequest) {
+                $categoriesExist = Category::pluck('title')->toArray();
+                if(in_array($categoryRequest, $categoriesExist)){
+                    $tagExistID = Category::where('title', $categoryRequest)->first()->id;
+                    Post_Category::create([
+                        'postId' => $newPost->id,
+                        'categoryId' => $categoriesExist,
+                    ]);
+                } else {
+                    $slugCategory = Str::replace(' ', "-", Str::lower($categoryRequest));
+
+                    $newCategory = Category::create([
+                        'title'=> $categoryRequest,
+                        'metaTitle'=> $categoryRequest,
+                        'slug'=> $slugCategory,
+                        'content' => null,
+                        'parentId' => null
+                    ]);
+
+                    Post_Category::create([
+                        'postId' => $newPost->id,
+                        'categoryId' => $newCategory->id,
+                    ]);
+                }
+            }
+        }
+
+        return new PostResource($newPost);
     }
 
     /**

@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Post_Tag extends Model
 {
     use HasFactory;
+    public $timestamps = false;
+    protected $guarded = [];
+    protected $table = 'Post_Tags';
 
     public function post(): BelongsTo
     {

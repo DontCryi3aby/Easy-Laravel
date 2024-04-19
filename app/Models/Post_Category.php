@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Post_Category extends Model
 {
     use HasFactory;
-
+    public $timestamps = false;
+    protected $guarded = [];
+    protected $table = 'Post_Categories';
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);

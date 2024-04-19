@@ -23,7 +23,7 @@ class PostFactory extends Factory
         $published = fake()->numberBetween(0, 1);
         $publishedAt = $published == 0 ? NULL : now();
 
-         $userIds = User::pluck('id')->toArray();
+        $userIds = User::pluck('id')->toArray();
 
         return [
             "authorId" => $userIds[array_rand($userIds)],
