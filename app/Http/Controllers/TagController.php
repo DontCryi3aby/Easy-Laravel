@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\CACHE_KEY;
 use App\Filters\TagsFilter;
 use App\Http\Resources\TagCollection;
 use App\Http\Resources\TagResource;
@@ -9,6 +10,7 @@ use App\Models\Tag;
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class TagController extends Controller
@@ -18,6 +20,13 @@ class TagController extends Controller
      */
     public function index(Request $request)
     {
+        // if(!Cache::has(CACHE_KEY::TAGS->value)){
+        //     Cache::rememberForever(CACHE_KEY::TAGS->value, function () {
+        //         return Tag::all();
+        //     });
+        // }
+        // $tagsCache = Cache::get(CACHE_KEY::TAGS->value);
+
         $filter = new TagsFilter();
         
         [$sort, $queryItems] = $filter->transform($request);
