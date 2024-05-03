@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateTagRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class TagController extends Controller
 {
@@ -19,27 +20,41 @@ class TagController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        // if(!Cache::has(CACHE_KEY::TAGS->value)){
-        //     Cache::rememberForever(CACHE_KEY::TAGS->value, function () {
-        //         return Tag::all();
-        //     });
-        // }
-        // $tagsCache = Cache::get(CACHE_KEY::TAGS->value);
+    { 
+        //Cache tags when api has no query
+        if(!count($request->query())){
+            if (Cache::has(CACHE_KEY::TAGS->value)) {
+                $tagsCache = Cache::get(CACHE_KEY::TAGS->value);
+                return new TagCollection($tagsCache);
+            } else {
+                Cache::rememberForever(CACHE_KEY::TAGS->value, function () {
+                    $tags = Tag::orderBy('id', 'desc')->paginate(15);
+                    return $tags;
+                });
+                $tags = Cache::get(CACHE_KEY::TAGS->value);
+                return new TagCollection($tags);
+            }
+            
+        };
+        
 
+        // Handle tags when api has query
         $filter = new TagsFilter();
         
         [$sort, $queryItems] = $filter->transform($request);
         
+        
         // Filter
         $tags = Tag::where($queryItems);
-
+        
         // Sort
         if($sort['field']) {
             $tags = $tags->orderBy($sort['field'], $sort['type']);
         }
+        DB::connection()->enableQueryLog();
 
         return new TagCollection($tags->paginate()->withQueryString());
+        
     }
 
     /**
