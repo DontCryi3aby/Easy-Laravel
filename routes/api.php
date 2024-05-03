@@ -26,7 +26,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('users', UserController::class);
-Route::apiResource('posts', PostController::class);
-Route::apiResource('categories', CategoryController::class);
-Route::apiResource('tags', TagController::class);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+
+Route::middleware(['throttle:customLimitWithMethod'])->group(function () {
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('posts', PostController::class);
+    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('tags', TagController::class);
+});

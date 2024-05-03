@@ -36,5 +36,22 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+
+        // Custom RateLimit by Thach
+        RateLimiter::for('customLimitWithMethod', function (Request $request) {
+            if ($request->isMethod('GET')) {
+                return Limit::perSeconds(1, 60)->response(function (Request $request) {
+                    return response()->json([
+                        'message' => 'Too many requests for GET api...',
+                    ],429);
+                });
+            }
+
+            return Limit::perSeconds(1,10)->response(function (Request $request) {
+                return response()->json([
+                    'message' => 'Too many requests for this api...',
+                ],429);
+            });
+        });
     }
 }
