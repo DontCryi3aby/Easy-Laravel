@@ -12,7 +12,6 @@ use App\Http\Requests\UpdateTagRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 
 class TagController extends Controller
 {
@@ -36,7 +35,6 @@ class TagController extends Controller
             }
             
         };
-        
 
         // Handle tags when api has query
         $filter = new TagsFilter();
@@ -51,10 +49,8 @@ class TagController extends Controller
         if($sort['field']) {
             $tags = $tags->orderBy($sort['field'], $sort['type']);
         }
-        DB::connection()->enableQueryLog();
 
         return new TagCollection($tags->paginate()->withQueryString());
-        
     }
 
     /**
