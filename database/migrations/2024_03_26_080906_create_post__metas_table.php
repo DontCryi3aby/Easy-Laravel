@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('post_metas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('postId')->constrained('posts');
+            $table->foreignId('postId')->constrained('posts')->onDelete('cascade');
             $table->string('key', 50);
             $table->text('content')->nullable();
         });

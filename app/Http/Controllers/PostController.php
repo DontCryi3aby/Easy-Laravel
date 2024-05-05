@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filters\PostsFilter;
+use App\Jobs\DeleteTagJob;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -164,6 +165,7 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
+        DeleteTagJob::dispatch();
         $post = Post::findOrFail($id);
         $post->delete();
         return response()->json([
